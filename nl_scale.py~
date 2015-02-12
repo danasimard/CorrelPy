@@ -1,0 +1,7 @@
+def __init__():
+    return
+
+from plot_eigen import *
+
+def eigenvalue_nonlinear_scale( dirname ):
+    numcheckpoints, numpoints, k, eigenvalues = read_eigenvalues( dirname )
