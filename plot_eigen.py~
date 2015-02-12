@@ -6,6 +6,17 @@ import matplotlib as mpl
 def __init__():
     return
 
+def read_parameters( dirname ):
+    infile = dirname + '/correls_parameters.txt'
+    f = open( infile )
+    lines = f.readlines()[1:]
+    checkpoints = []
+    for line in lines:
+        items = line.split()
+        checkpoints.append( float(items[0]) )
+    f.close()
+    return checkpoints
+
 def plot_eigenvalues( dirname ):
     outpath = dirname + '/coefficients_eigenvalues.ps'
     numcheckpoints, numpoints, k, eigenvalues = read_eigenvalues( dirname )
@@ -30,10 +41,9 @@ def plot_eigenvalues( dirname ):
 # Use this routine - this is the plot we want to see when we 
 # plot the eigenvectors - basically comparing the ith component of 
 # each of the eigenvectors
-# Checkpoints should be in the same order as in the parameter file
-# used in correls.
-def plot_eigenvectors(dirname, k_value, checkpoints):
+def plot_eigenvectors(dirname, k_value ):
     numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors(dirname)
+    checkpoints = read_parameters( dirname )
     k_index = np.abs( k - k_value ).argmin()
     output = dirname + '/coefficients_eigenvectors_' + str(k_value) + '.ps'
     fig = plt.figure()
@@ -43,7 +53,7 @@ def plot_eigenvectors(dirname, k_value, checkpoints):
     plt.ylabel( 'eigenvectors' )
     plt.xlabel( 'redshift' )
     plt.title( dirname + '   k = ' + str(k[k_index] ) )
-    ax.set_xscale('log')
+    #ax.set_xscale('log')
     plt.gca().invert_xaxis()
     plt.savefig( output )
     fig.show()

@@ -44,13 +44,15 @@ def plot_eigenvalues( dirname ):
 def plot_eigenvectors(dirname, k_value ):
     numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors(dirname)
     checkpoints = read_parameters( dirname )
+    eigenvectors = np.array( eigenvectors )
+    eigenvectors_n = eigenvectors * np.sqrt( numcheckpoints )
     k_index = np.abs( k - k_value ).argmin()
     output = dirname + '/coefficients_eigenvectors_' + str(k_value) + '.ps'
     fig = plt.figure()
     ax = plt.subplot(111)
     for i in range(numcheckpoints):
-        plt.plot( checkpoints, eigenvectors[k_index,i] )
-    plt.ylabel( 'eigenvectors' )
+        plt.plot( checkpoints, eigenvectors_n[k_index,i] )
+    plt.ylabel( 'eigenvectors * sqrt[n]' )
     plt.xlabel( 'redshift' )
     plt.title( dirname + '   k = ' + str(k[k_index] ) )
     #ax.set_xscale('log')
