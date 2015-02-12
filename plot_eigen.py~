@@ -26,17 +26,25 @@ def plot_eigenvalues( dirname ):
     fig.show()
     return
 
-def plot_eigenvectors(dirname, k_value):
+
+# Use this routine - this is the plot we want to see when we 
+# plot the eigenvectors - basically comparing the ith component of 
+# each of the eigenvectors
+# Checkpoints should be in the same order as in the parameter file
+# used in correls.
+def plot_eigenvectors(dirname, k_value, checkpoints):
     numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors(dirname)
     k_index = np.abs( k - k_value ).argmin()
-    output = dirname + '/coefficients_eigenvectors_' + str( k[k_index] ) + '.ps'
+    output = dirname + '/coefficients_eigenvectors_' + str(k_value) + '.ps'
     fig = plt.figure()
     ax = plt.subplot(111)
     for i in range(numcheckpoints):
-        plt.plot( range(numcheckpoints), eigenvectors[k_index,i] )
+        plt.plot( checkpoints, eigenvectors[k_index,i] )
     plt.ylabel( 'eigenvectors' )
-    plt.xlabel( 'checkpoint' )
+    plt.xlabel( 'redshift' )
     plt.title( dirname + '   k = ' + str(k[k_index] ) )
+    ax.set_xscale('log')
+    plt.gca().invert_xaxis()
     plt.savefig( output )
     fig.show()
     return
@@ -61,6 +69,21 @@ def read_eigenvalues( dirname ):
     f.close()
     return numcheckpoints, numpoints, k, eigenvalues
 
+def plot_eigenvectors2(dirname, k_value):
+    numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors2(dirname)
+    k_index = np.abs( k - k_value ).argmin()
+    output = dirname + '/coefficients_eigenvectors_' + str(k_value) + '_2.ps'
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    for i in range(numcheckpoints):
+        plt.plot( range(numcheckpoints), eigenvectors[k_index,i] )
+    plt.ylabel( 'eigenvectors' )
+    plt.xlabel( 'checkpoint' )
+    plt.title( dirname + '   k = ' + str(k[k_index] ) )
+    plt.savefig( output )
+    fig.show()
+    return
+
 def read_eigenvectors( dirname ):
     datapath = dirname + '/coefficients_eigenvectors.dat' 
     f = open(datapath)
@@ -76,6 +99,24 @@ def read_eigenvectors( dirname ):
         for i in range( numcheckpoints ):
             for j in range( numcheckpoints ):
                 eigenvectors[l,i,j] = items[i*numcheckpoints+j+1]
+    f.close()
+    return numcheckpoints, numpoints, k, eigenvectors
+
+def read_eigenvectors2( dirname ):
+    datapath = dirname + '/coefficients_eigenvectors.dat' 
+    f = open(datapath)
+    lines = f.readlines()
+    items = lines[0].split()
+    numpoints = int(items[0])
+    numcheckpoints = int(items[1])
+    k = np.zeros(numpoints)
+    eigenvectors = np.zeros( (numpoints, numcheckpoints, numcheckpoints) )
+    for l in range( numpoints ):
+        items = lines[l+1].split()
+        k[l] = items[0]
+        for i in range( numcheckpoints ):
+            for j in range( numcheckpoints ):
+                eigenvectors[l,j,i] = items[i*numcheckpoints+j+1]
     f.close()
     return numcheckpoints, numpoints, k, eigenvectors
     

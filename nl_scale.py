@@ -10,11 +10,14 @@ import string
 # parameter file in diag_cross_spectrum. It would be ideal to later 
 # change diag_cross_spectrum to print the parameter file to the 
 # data directory so that it can be read in by read_eigenvalues and
-# read_eigenvectors
+# read_eigenvectors.  Also note that this relies on the fact that 
+# the eigenvalues are printed from smallest to largest - we should
+# probably actually change that in diag_cross_spectrum and then change
+# this code
 def eigenvalue_nonlinear_scale( dirname ):
     numcheckpoints,numpoints,k,eigenvalues = read_eigenvalues( dirname )
     eigen_t = numcheckpoints*0.5
-    index = np.abs( eigenvalues[-1,:] - eigen_t ).argmin()
+    index = np.abs( eigenvalues[0,:] - eigen_t ).argmin()
     k_t = k[index] 
     return k_t, eigenvalues[:,0]
 
@@ -39,3 +42,4 @@ def eigenvalue_old( dirname, checkpoints = [] ):
     plt.savefig( output )
     fig.show()
     return checkpoints, k_t
+
