@@ -1,0 +1,101 @@
+# makeplots.py
+# Dana Simard January 2015
+# 
+# This file contains all of the plotting routines that have to do with the 
+# cross and auto correlators.
+#
+
+from CorrelPy.read_correl import *
+from CorrelPy.correl_factors import *
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def __init__():
+    return
+
+def plot_correl_factors( dirname, checkpoints, log_switch):
+    # dirname = path to the directory with all of the correlation data files
+    # checkpoints = array with all of the checkpoints for which we want 
+    #               to compute the cross correlation factors
+    # log_switch = 0 for linear y axis, 1 for log y axis
+    # eg. > plot_correl_factors( 'cubep3m8', [0., 1., 10.], 0 )
+    fig1 = plt.figure()
+    ax1 = plt.subplot(111)
+    ax1.set_xscale('log')
+    if log_switch:
+        ax1.set_yscale('log')
+    ax1.set_xlabel('k')
+    ax1.set_ylabel('r')
+    if len(checkpoints) == 2:
+        ax1.set_title( dirname + ' ' + str(checkpoints[0]) + 'x' + str(checkpoints[1]) )
+    nplots = 0
+    for i in range(len(checkpoints) ):
+        nplots = nplots + i
+    if nplots > 4:
+        fig2 = plt.figure()
+        ax2 = plt.subplot(111)
+        ax2.set_xscale('log')
+        ax2.set_xlabel('k')
+        ax2.set_ylabel('r')
+        fig3 = plt.figure()
+        ax3 = plt.subplot(111)
+        ax3.set_xscale('log')
+        ax3.set_xlabel('k')
+        ax3.set_ylabel('r')
+        fig4 = plt.figure()
+        ax4 = plt.subplot(111)
+        ax4.set_xscale('log')
+        ax4.set_xlabel('k')
+        ax4.set_ylabel('r')
+        if log_switch:
+            ax2.set_yscale('log')
+            ax3.set_yscale('log')
+            ax4.set_yscale('log')
+        nperplot = int(round(nplots/4.0))
+    else:
+        nperplot = nplots
+    formats = ['bo','gv','r^','cs','mp','y*','kd']
+    m = 0
+    for i in range(len(checkpoints)):
+        for j in range(i+1, len(checkpoints)):
+            k, r, er = correl_factors( dirname, checkpoints[i], checkpoints[j])
+            if m < nperplot:
+                ax1.errorbar( k, r, yerr=er, fmt=formats[m])
+            elif m < nperplot*2:
+                ax2.errorbar( k, r, yerr=er, fmt=formats[m-nperplot])
+            elif m < nperplot*3:
+                ax3.errorbar( k, r, yerr=er, fmt=formats[m-nperplot*2])
+            else:
+                ax4.errorbar( k, r, yerr=er, fmt=formats[m-nperplot*3])
+            m = m + 1
+    if nplots > 4:
+        fig1.subplots_adjust(wspace=0,hspace=0)
+        fig1.show()
+        fig2.subplots_adjust(wspace=0,hspace=0)
+        fig2.show()
+        fig3.subplots_adjust(wspace=0,hspace=0)
+        fig3.show()
+        fig4.subplots_adjust(wspace=0,hspace=0)
+        fig4.show()
+    else:
+        fig1.subplots_adjust(wspace=0,hspace=0)
+        fig1.show()
+    return
+
+def plot_correls( dirname, checkpoint, log_switch):
+    k, delta, edelta = read_correl( dirname, checkpoint, checkpoint )
+    delta = abs(delta)
+    fig1 = plt.figure()
+    ax1 = plt.subplot(111)
+    if log_switch:
+        ax1.set_yscale( 'log' )
+        ax1.set_xscale('log')
+    ax1.set_title( dirname + ', redshift ' + str(checkpoint) )
+    ax1.set_xlabel( 'k' )
+    ax1.set_ylabel('P(k)' )
+    ax1.errorbar( k[:-1], delta[:-1], yerr = edelta[:-1], fmt = 'bo' )
+    fig1.show()
+    return
+
+#def compare

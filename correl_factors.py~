@@ -1,0 +1,38 @@
+# correl_factors.py
+# Dana Simard January 2015
+#
+# Calculates the cross-correlation factors:
+#  
+#   r(k,t,t') = P(k,t,t')/Sqrt[ P(k,t,t) * P(k,t',t')
+#
+
+from CorrelPy.read_correl import *
+import numpy as np
+
+def __init__():
+    return
+
+class UnEqual(Exception):
+    def __init__(self, arg1, arg2):
+        self.arg1 = arg1
+        self.arg2 = arg2
+        return
+    def __str__(self):
+        self.msg = 'Arrays ' + self.arg1 + ' and ' + self.arg2 + ' unequal.'
+        return repr(self.msg)
+
+def correl_factors( dirname, checkpoint1, checkpoint2):
+    # Read in the cross correlators and auto correlators
+    k11, p11, ep11 = read_correl( dirname, checkpoint1, checkpoint1 )
+    k22, p22, ep22 = read_correl( dirname, checkpoint2, checkpoint2 )
+    k12, p12, ep12 = read_correl( dirname, checkpoint1, checkpoint2 )
+    if not np.array_equal( k11, k22 ):
+        raise UnEqual( 'k11', 'k22' )
+    if not np.array_equal( k11, k12 ):
+        raise UnEqual( 'k11', 'k12' )
+    r = p12 / np.sqrt(np.abs( p11 * p22 ))
+    er = np.abs(r) * np.sqrt( (ep12/p12)**2. + (0.5*ep11/p11)**2. + (0.5*ep22/p22)**2.)
+    return k11, r, er
+
+        
+
