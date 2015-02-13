@@ -17,6 +17,32 @@ def read_parameters( dirname ):
     f.close()
     return checkpoints
 
+
+def plot_contribution( dirname, k_value ):
+    outpath = dirname + '/coefficients_contribution_' + str( k_value ) + '.ps'
+    numcheckpoints, numpoints, k, eigenvalues = read_eigenvalues( dirname )
+    numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors( dirname )
+    checkpoints = read_parameters( dirname )
+    eigenvectors = np.array( eigenvectors )
+    eigenvectors_n = np.zeros( (numpoints, numcheckpoints, numcheckpoints) )
+    for l in range( numpoints ):
+        for i in range( numcheckpoints):
+            eigenvectors_n[l,i,:] = eigenvectors[l,i,:] *np.sqrt( abs(eigenvalues[i,l]) )
+    k_index = np.abs( k - k_value ).argmin()
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    for i in range(numcheckpoints):
+        plt.plot( checkpoints, eigenvectors_n[k_index,i] )
+    plt.ylabel( 'v * sqrt[|lambda|]' )
+    plt.xlabel( 'redshift' )
+    plt.title( dirname + '   k = ' + str(k[k_index] ) )
+    #ax.set_xscale('log')
+    plt.gca().invert_xaxis()
+    plt.savefig( outpath )
+    fig.show()
+    return
+
+
 def plot_eigenvalues( dirname ):
     outpath = dirname + '/coefficients_eigenvalues.ps'
     numcheckpoints, numpoints, k, eigenvalues = read_eigenvalues( dirname )
