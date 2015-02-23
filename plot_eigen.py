@@ -218,7 +218,7 @@ def plot_delta( dirname ):
     fig = plt.figure()
     ax = plt.subplot(111)
     for i in range(numcheckpoints):
-        plt.plot( k, delta_plot[:,i], label=checkpoints[i])
+        plt.plot( k, delta_plot[:,i], label=str(checkpoints[i]))
     plt.xlabel( 'k [h/Mpc]' )
     plt.ylabel( 'Delta2' )
     plt.title( dirname )
@@ -238,7 +238,7 @@ def plot_power( dirname ):
     outpath = dirname + "/power.ps"
     for i in range(len(checkpoints)):
         k, power, epower = read_correl( dirname, checkpoints[i], checkpoints[i])
-        plt.plot( k, power, label = checkpoints[i])
+        plt.plot( k, power, label = str(checkpoints[i]))
     plt.xlabel( 'k [h/Mpc]' )
     plt.ylabel( 'Delta2' )
     plt.title( dirname + ' (ngpps)' )
@@ -267,3 +267,21 @@ def plot_linear_w( dirname):
     return
 
         
+def plot_diff( dirname ):
+    outpath = dirname + '/difference.ps'
+    k, checkpoints, delta, numpoints, numcheckpoints = read_delta( dirname )
+    delta = np.array( delta )
+    delta_plot = delta * delta
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    for i in range(len(checkpoints)):
+        k, power, epower = read_correl( dirname, checkpoints[i], checkpoints[i])
+        plt.plot( k, power/delta_plot[:,i], label = str(checkpoints[i]))
+    ax.set_yscale( 'log' )
+    plt.xlabel( 'k [h/Mpc]' )
+    plt.ylabel( 'delta2_ngpps/delta2_eigen' )
+    plt.legend()
+    plt.title( dirname )
+    plt.savefig( outpath )
+    fig.show()
+    return
