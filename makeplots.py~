@@ -9,7 +9,12 @@ from CorrelPy.read_correl import *
 from CorrelPy.correl_factors import *
 import numpy as np
 import matplotlib.pyplot as plt
-
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import proj3d
+import pylab
+from matplotlib.patches import Rectangle
+import matplotlib.cm as cmx
+import matplotlib
 
 def __init__():
     return
@@ -98,4 +103,73 @@ def plot_correls( dirname, checkpoint, log_switch):
     fig1.show()
     return
 
-#def compare
+def plot_correl_factors_3d( dirname, k_value, checkpoints ):
+    numcheckpoints = len(checkpoints)
+    r = np.empty( ( numcheckpoints, numcheckpoints), np.float)
+    er = np.empty( ( numcheckpoints, numcheckpoints), np.float )
+    k, rtemp, ertemp = correl_factors(dirname, checkpoints[0], checkpoints[0] )
+    k_index = np.abs( k - k_value ).argmin()
+    for i in range( len(checkpoints) ):
+        for j in range( len (checkpoints ) ):
+            ktemp, rtemp, ertemp = correl_factors( dirname, checkpoints[i], checkpoints[j])
+            r[i][j] = rtemp[k_index]
+            er[i][j] = ertemp[k_index]
+    rplot = r.flatten()
+    erplot = er.flatten()
+    x = []
+    y = []
+    for i in range(numcheckpoints):
+        for j in range(numcheckpoints):
+            x.append( checkpoints[i] )
+            y.append( checkpoints[j] )
+    fig = pylab.figure()
+    ax = Axes3D(fig)
+    ax.set_title( 'k = ' + str(k[k_index]) )
+    ax.set_xlabel( 'Checkpoint a' )
+    ax.set_ylabel( 'Checkpoint b' )
+    ax.set_zlabel( 'R_ab' )
+    #    ax = fig.add_subplot(111, projection='3d' )
+    colours = [u'k',u'b',u'r',u'g',u'm',u'c',u'y']
+    for i in range(numcheckpoints):
+        p = ax.scatter( x[numcheckpoints*i:numcheckpoints*(i+1)], y[numcheckpoints*i:numcheckpoints*(i+1)], rplot[numcheckpoints*i:numcheckpoints*(i+1)], zdir=u'z', s=40, c=colours[i%len(colours)], marker='^')
+        #for i in range( len( x ) ):
+        #x2, y2, _ = proj3d.proj_transform( x[i], y[i], rplot[i], ax.get_proj() )
+        #label = pylab.annotate( str(x[i]) + ", " + str(y[i]), xy = (x2, y2), xytext = (-5,5), textcoords = 'offset points', ha = 'right', va = 'bottom')
+        #bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5),
+        #arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3,rad=0') )
+    fig.show()
+    return
+
+def plot_correl_factors_2d( dirname, k_value, checkpoints ):
+    numcheckpoints = len(checkpoints)
+    r = np.empty( ( numcheckpoints, numcheckpoints), np.float)
+    er = np.empty( ( numcheckpoints, numcheckpoints), np.float )
+    k, rtemp, ertemp = correl_factors(dirname, checkpoints[0], checkpoints[0] )
+    k_index = np.abs( k - k_value ).argmin()
+    for i in range( len(checkpoints) ):
+        for j in range( len (checkpoints ) ):
+            ktemp, rtemp, ertemp = correl_factors( dirname, checkpoints[i], checkpoints[j])
+            r[i][j] = rtemp[k_index]
+            er[i][j] = ertemp[k_index]
+    width = []
+    width.append( 0. )
+    for i in range( 1, len(checkpoints) ):
+        width.append( (checkpoints[i] - checkpoints[i-1])/2 )
+    width.append( width[ - 1 ] )
+    print width
+    cm = plt.get_cmap('Greys')
+    cNorm = matplotlib.colors.Normalize( vmin = min( r.flatten() ), vmax = max( r.flatten() ))
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap = cm)
+    pylab.plot([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], color="black" )
+    for i in range(  len(checkpoints ) ):
+        for j in range( len(checkpoints) ):
+            pylab.gca().add_patch( Rectangle((checkpoints[i]-width[i],checkpoints[j]-width[j]),width[i]+width[i+1], width[j]+width[j+1], facecolor=scalarMap.to_rgba(r[i][j])))
+    scalarMap.set_array(r.flatten() )
+    pylab.colorbar( scalarMap )
+    pylab.title( 'k = ' + str(k[k_index]) )
+    pylab.xlabel( "z_a" )
+    pylab.ylabel( "z_b" )
+    pylab.show()
+    return
+
+            

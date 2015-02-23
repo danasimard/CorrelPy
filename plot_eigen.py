@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import string
 import matplotlib as mpl
+from makeplots import *
 
 def __init__():
     return
@@ -211,18 +212,58 @@ def plot_delta( dirname ):
     outpath = dirname + "/delta_cs0.ps"
     k = np.array( k )
     delta = np.array( delta )
-    delta_true = np.zeros( (numpoints, numcheckpoints) )
-    for i in range(numcheckpoints):
-        delta_true[:,i] = ( 2 * np.pi**2. / ( k**3.))**0.5 * delta[:,i]
+    delta_plot = delta*delta;
+    #for i in range(numcheckpoints):
+    #    delta_true[:,i] = ( 2 * np.pi**2. / ( k**3.))**0.5 * delta[:,i]
     fig = plt.figure()
     ax = plt.subplot(111)
     for i in range(numcheckpoints):
-        plt.plot( k, delta[:,i], label=checkpoints[i])
+        plt.plot( k, delta_plot[:,i], label=checkpoints[i])
     plt.xlabel( 'k [h/Mpc]' )
-    plt.ylabel( 'delta [(Mpc/h)^3/2]' )
+    plt.ylabel( 'Delta2' )
     plt.title( dirname )
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    #plt.xlim( 0, 5. )
+    #plt.ylim( -1, 2. )
+    plt.legend()
+    plt.savefig( outpath )
+    fig.show()
+    return
+
+def plot_power( dirname ):
+    checkpoints = read_parameters( dirname )
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    outpath = dirname + "/power.ps"
+    for i in range(len(checkpoints)):
+        k, power, epower = read_correl( dirname, checkpoints[i], checkpoints[i])
+        plt.plot( k, power, label = checkpoints[i])
+    plt.xlabel( 'k [h/Mpc]' )
+    plt.ylabel( 'Delta2' )
+    plt.title( dirname + ' (ngpps)' )
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    #plt.xlim( 0, 5. )
+    #plt.ylim( -1, 2. )
     plt.legend()
     plt.savefig( outpath )
     fig.show()
     return
     
+def plot_linear_w( dirname):
+    numcheckpoints, numpoints, k, w = read_eigenvectors( dirname, 1 )
+    checkpoints = read_parameters( dirname )
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    outpath = dirname + "/linearw.ps" 
+    for i in range( numcheckpoints ):
+        plt.plot( k, w[:,0,i], label=checkpoints[i] )
+    plt.xlabel( 'k [h/Mpc]' )
+    plt.ylabel( 'w0' )
+    plt.legend()
+    plt.savefig( outpath )
+    fig.show()
+    return
+
+        

@@ -85,9 +85,12 @@ def plot_eigenvectors(dirname, k_value, wflag, tauflag ):
         output = dirname + '/coefficients_eigenvectors_' + str(k_value) + '.ps'
     fig = plt.figure()
     ax = plt.subplot(111)
+    eigenvectors_sum = np.zeros( (numpoints, numcheckpoints) )
     if wflag:
         for i in range(numcheckpoints):
             plt.plot( checkpoints, eigenvectors[k_index,i] )
+            eigenvectors_sum = eigenvectors_sum + eigenvectors[:,i,:]
+        plt.plot( checkpoints, eigenvectors_sum[k_index ], 'k-' )
         plt.ylabel( 'wvectors' )
         if tauflag:
             plt.xlabel( 'tau' )
@@ -182,4 +185,44 @@ def read_eigenvectors2( dirname ):
                 eigenvectors[l,j,i] = items[i*numcheckpoints+j+1]
     f.close()
     return numcheckpoints, numpoints, k, eigenvectors
+    
+def read_delta( dirname ):
+    datapath = dirname + '/delta_cs0.dat'
+    f = open( datapath )
+    lines = f.readlines()
+    items = lines[0].split()
+    numpoints = int( items[0] )
+    numcheckpoints = int( items[1] )
+    checkpoints = np.zeros( numcheckpoints )
+    k = np.zeros( numpoints )
+    delta = np.zeros( (numpoints, numcheckpoints ) )
+    items = lines[1].split()
+    for i in range( numcheckpoints ):
+        checkpoints[i] = float( items[i] )
+    for l in range(numpoints):
+        items = lines[l+2].split()
+        k[l] = float( items[0] )
+        for i in range( numcheckpoints):
+            delta[l][i] = float( items[i+1] )
+    return k, checkpoints, delta, numpoints, numcheckpoints
+
+def plot_delta( dirname ):
+    k, checkpoints, delta, numpoints, numcheckpoints = read_delta( dirname )
+    outpath = dirname + "/delta_cs0.ps"
+    k = np.array( k )
+    delta = np.array( delta )
+    delta_plot = delta*delta;
+    #for i in range(numcheckpoints):
+    #    delta_true[:,i] = ( 2 * np.pi**2. / ( k**3.))**0.5 * delta[:,i]
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    for i in range(numcheckpoints):
+        plt.plot( k, delta[:,i], label=checkpoints[i])
+    plt.xlabel( 'k [h/Mpc]' )
+    plt.ylabel( 'delta [(Mpc/h)^3/2]' )
+    plt.title( dirname )
+    plt.legend()
+    plt.savefig( outpath )
+    fig.show()
+    return
     
