@@ -112,6 +112,32 @@ def plot_eigenvectors(dirname, k_value, wflag, tauflag ):
     plt.savefig( output )
     fig.show()
     return
+
+def plot_w0(dirname, k_value, tauflag):
+    numcheckpoints, numpoints, k, eigenvectors = read_eigenvectors(dirname, 1)
+    checkpoints = read_parameters( dirname )
+    if (tauflag):
+        checkpoints_old = np.array( checkpoints )
+        checkpoints_old = 1.0 / ( 1.0 + checkpoints_old)
+        checkpoints = -2./67. * ( checkpoints_old)**(-0.5)
+    eigenvectors = np.array( eigenvectors )
+    eigenvectors_n = eigenvectors * np.sqrt( numcheckpoints )
+    k_index = np.abs( k - k_value ).argmin()
+    output = dirname + '/coefficients_w0_' + str(k_value) + '.ps'
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    eigenvectors_sum = np.zeros( (numpoints, numcheckpoints) )
+    plt.plot( checkpoints, eigenvectors[k_index,0] )
+    plt.ylabel( 'wvectors' )
+    if tauflag:
+        plt.xlabel( 'tau' )
+    else:
+        plt.xlabel( 'redshift' )
+    plt.title( dirname + ' w0 k = ' + str(k[k_index]))
+    plt.gca().invert_xaxis()
+    plt.savefig( output )
+    fig.show()
+    return
     
     
 
@@ -258,7 +284,7 @@ def plot_linear_w( dirname):
     ax = plt.subplot(111)
     outpath = dirname + "/linearw.ps" 
     for i in range( numcheckpoints ):
-        plt.plot( k, w[:,0,i], label=checkpoints[i] )
+        plt.plot( k, w[:,0,i], label=str(checkpoints[i]) )
     plt.xlabel( 'k [h/Mpc]' )
     plt.ylabel( 'w0' )
     plt.legend()
