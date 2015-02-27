@@ -307,6 +307,7 @@ def plot_diff( dirname ):
         k, power, epower = read_correl( dirname, checkpoints[i], checkpoints[i])
         plt.plot( k, power/delta_plot[:,index], label = str(checkpoints[i]))
     ax.set_yscale( 'log' )
+    ax.set_xscale('log')
     plt.xlabel( 'k [h/Mpc]' )
     plt.ylabel( 'delta2_ngpps/delta2_eigen' )
     plt.legend()

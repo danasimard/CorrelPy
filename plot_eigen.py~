@@ -295,14 +295,17 @@ def plot_linear_w( dirname):
         
 def plot_diff( dirname ):
     outpath = dirname + '/difference.ps'
-    k, checkpoints, delta, numpoints, numcheckpoints = read_delta( dirname )
+    checkpoints = read_parameters(dirname)
+    k, checkpoints_all, delta, numpoints, numcheckpoints = read_delta( dirname )
     delta = np.array( delta )
     delta_plot = delta * delta
+    checkpoints_all = np.array( checkpoints_all )
     fig = plt.figure()
     ax = plt.subplot(111)
     for i in range(len(checkpoints)):
+        index = np.argmin( checkpoints_all - checkpoints[i] )
         k, power, epower = read_correl( dirname, checkpoints[i], checkpoints[i])
-        plt.plot( k, power/delta_plot[:,i], label = str(checkpoints[i]))
+        plt.plot( k, power/delta_plot[:,index], label = str(checkpoints[i]))
     ax.set_yscale( 'log' )
     plt.xlabel( 'k [h/Mpc]' )
     plt.ylabel( 'delta2_ngpps/delta2_eigen' )
@@ -412,3 +415,25 @@ def plot_delta_only( dirname ):
     fig.show()
     return
 
+def plot_delta2( dirname ):
+    outpath = dirname + '/delta_cs0_2.ps' 
+    checkpoints = read_parameters( dirname )
+    k, checkpoints_all, delta, numpoints, numcheckpoints = read_delta( dirname )
+    delta = np.array( delta )
+    checkpoints_all = np.array( checkpoints_all )
+    delta_plot = delta * delta
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    for i in range( len(checkpoints) ):
+        index = np.argmin(abs( checkpoints_all - checkpoints[i] ))
+        plt.plot( k, delta_plot[:,index], label=str(checkpoints_all[index] ))
+    plt.legend()
+    plt.xlabel('k [h/Mpc]' )
+    plt.title( dirname )
+    plt.ylabel( 'Delta2' )
+    ax.set_xscale( 'log' )
+    ax.set_yscale( 'log' )
+    plt.savefig( outpath )
+    fig.show()
+    return
+    
